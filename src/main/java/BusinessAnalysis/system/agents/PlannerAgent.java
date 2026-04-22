@@ -6,15 +6,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class PlannerAgent {
 
-    public String plan(KPIData data) {
+    public String plan(KPIData data, double performance) {
 
-        if (data.getEffectiveRevenue() > 200000000 && data.getTeamSize() < 30) {
-            return "Aggressive growth plan required with team expansion";
-        }
-        if (data.getEffectiveRevenue() > 200000000) {
-            return "Aggressive growth plan";
+        if (performance < 0.5) {
+            return "Severe underperformance vs targets";
         }
 
-        return "Moderate growth plan";
+        if (performance < 0.8) {
+            return "Underperforming against growth targets";
+        }
+
+        if (performance <= 1.1) {
+            return "On track with planned growth";
+        }
+
+        return "Exceeding growth expectations";
     }
 }

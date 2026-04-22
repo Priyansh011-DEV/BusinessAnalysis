@@ -18,26 +18,31 @@ public class OllamaService implements AIService {
     @Override
     public String generateExplanation(String plan, String risk, String recommendation) {
 
-        // 🔥 Clean, dynamic, non-generic prompt
+        // 🔥 Extract numbers from plan string (since you embedded them there)
         String prompt = """
-                You are a senior business consultant.
+            You are a senior business consultant.
 
-                Business Context:
-                - Growth Strategy: %s
-                - Identified Risk: %s
+            Business Analysis Data:
+            %s
 
-                Tasks:
-                1. Explain what this situation means in a real business context
-                2. Explain why this risk is critical
-                3. Suggest actionable steps to address it
+            Risk:
+            %s
 
-                Constraints:
-                - Keep response concise (3-4 lines)
-                - Use professional, executive-level tone with some simple understanding words.
-                - Avoid generic phrases
+            Recommendation:
+            %s
 
-                Output:
-                """.formatted(plan, risk);
+            Tasks:
+            1. Explain the situation using the numerical data provided
+            2. Highlight why the risk is critical based on performance and capacity gap
+            3. Suggest clear, actionable business steps
+
+            Rules:
+            - MUST use numbers (performance, team gap, productivity)
+            - Be concise (4-6 lines)
+            - Sound like a real consultant (not generic)
+
+            Output:
+            """.formatted(plan, risk, recommendation);
 
         String url = "http://localhost:11434/api/generate";
 

@@ -21,4 +21,11 @@ public class UploadController {
     public AnalysisResponse uploadPDF(@RequestParam("file") MultipartFile file) {
         return ingestionService.processPDF(file);
     }
+    @PostMapping("/compare")
+    public AnalysisResponse compare(
+            @RequestParam("past") MultipartFile pastPdf,
+            @RequestParam("target") MultipartFile targetPdf
+    ) {
+        return ingestionService.processComparison(pastPdf, targetPdf);
+    }
 }

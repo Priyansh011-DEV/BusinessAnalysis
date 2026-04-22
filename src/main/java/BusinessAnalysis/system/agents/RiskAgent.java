@@ -5,14 +5,18 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RiskAgent {
-    public String evaluateRisk(KPIData data, boolean marketHot) {
+    public String evaluateRisk(KPIData data, boolean marketHot, int gap, double performance) {
 
-        if (marketHot && data.getEffectiveRevenue() > 200000000 && data.getTeamSize() < 30) {
-            return "High risk of missing market opportunity due to under-hiring";
+        if (performance < 0.6) {
+            return "High execution risk due to major performance gap";
         }
 
-        if (!marketHot && data.getRevenueTarget() > 200000000) {
-            return "Risk of over-expansion in a slow market";
+        if (gap > 0 && marketHot) {
+            return "Risk of under-hiring in high-demand market";
+        }
+
+        if (gap > 0) {
+            return "Capacity risk due to insufficient team size";
         }
 
         return "Low operational risk";

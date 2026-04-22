@@ -4,20 +4,16 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RecommendationAgent {
-    public String recommend(String plan, boolean marketHot, String risk) {
+    public String recommend(String plan, int gap, double performance) {
 
-        if (marketHot && plan.contains("Aggressive") && risk.contains("under-hiring")) {
-            return "Increase hiring capacity immediately, especially in high-demand roles";
+        if (performance < 0.6) {
+            return "Urgently improve execution and increase team capacity";
         }
 
-        if (!marketHot && plan.contains("Aggressive")) {
-            return "Proceed cautiously. Focus on cost control and selective hiring";
+        if (gap > 0) {
+            return "Hire " + gap + " additional employees to meet target based on current productivity";
         }
 
-        if (risk.contains("Low")) {
-            return "Maintain steady growth with balanced hiring strategy";
-        }
-
-        return "Re-evaluate strategy based on current KPIs and market signals";
+        return "Maintain current strategy and optimize efficiency";
     }
 }

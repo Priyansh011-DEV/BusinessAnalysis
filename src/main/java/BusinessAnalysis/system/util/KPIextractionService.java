@@ -15,89 +15,119 @@ public class KPIextractionService {
         long achievedRevenue = extractAchievedRevenue(text);
         int teamSize = extractTeamSize(text);
 
-        KPIData data = KPIData.builder()
-                .revenueTarget(targetRevenue)
-                .achievedRevenue(achievedRevenue)
-                .teamSize(teamSize)
-                .build();
-
-        // Debug logs
+        System.out.println("=== EXTRACTED DATA ===");
         System.out.println("Target Revenue: " + targetRevenue);
         System.out.println("Achieved Revenue: " + achievedRevenue);
         System.out.println("Team Size: " + teamSize);
 
-        return data;
+        return KPIData.builder()
+                .revenueTarget(targetRevenue)
+                .achievedRevenue(achievedRevenue)
+                .teamSize(teamSize)
+                .build();
     }
 
-    // 🔹 TARGET revenue (if explicitly mentioned)
+    // 🔥 TARGET REVENUE (OKR)
     private long extractTargetRevenue(String text) {
-        Pattern pattern = Pattern.compile(
-                "target[^\\d$]*\\$?([0-9,.]+)([MK]|million|k|cr)?",
-                Pattern.CASE_INSENSITIVE
-        );
 
-        Matcher matcher = pattern.matcher(text);
+        String[] patterns = {
+                "scale revenue to",
+                "target revenue",
+                "revenue target",
+                "goal revenue",
+                "revenue goal",
+                "forecast revenue",
+                "expected revenue",
+                "planned revenue",
+                "arr target",
+                "annual recurring revenue",
+                "revenue objective",
+                "objective.*revenue",
+                "okr.*revenue"
+        };
 
-        if (matcher.find()) {
-            return parseValue(matcher.group(1), matcher.group(2));
+        for (String keyword : patterns) {
+            Pattern pattern = Pattern.compile(
+                    keyword + "[^\\d$]*\\$?([0-9,.]+)([MK]|million|k|cr)?",
+                    Pattern.CASE_INSENSITIVE
+            );
+
+            Matcher matcher = pattern.matcher(text);
+
+            if (matcher.find()) {
+                return parseValue(matcher.group(1), matcher.group(2));
+            }
         }
 
         return 0;
     }
 
-    // 🔹 ACHIEVED revenue (find best candidate like total/Q1 total)
+    // 🔥 ACHIEVED REVENUE (KPR)
     private long extractAchievedRevenue(String text) {
 
-        Pattern pattern = Pattern.compile(
-                "(total revenue|q1 total)[^\\d$]*\\$?([0-9,.]+)([MK]|million|k|cr)?",
-                Pattern.CASE_INSENSITIVE
-        );
-
-        Matcher matcher = pattern.matcher(text);
+        String[] patterns = {
+                "total revenue",
+                "q1 total",
+                "quarter revenue",
+                "revenue achieved",
+                "actual revenue",
+                "reported revenue"
+        };
 
         long best = 0;
 
-        while (matcher.find()) {
-            long value = parseValue(matcher.group(2), matcher.group(3));
-            if (value > best) {
-                best = value; // pick highest relevant value
+        for (String keyword : patterns) {
+
+            Pattern pattern = Pattern.compile(
+                    keyword + "[^\\d$]*\\$?([0-9,.]+)([MK]|million|k|cr)?",
+                    Pattern.CASE_INSENSITIVE
+            );
+
+            Matcher matcher = pattern.matcher(text);
+
+            while (matcher.find()) {
+                long value = parseValue(matcher.group(1), matcher.group(2));
+                if (value > best) {
+                    best = value;
+                }
             }
         }
 
         return best;
     }
 
-    // 🔹 TEAM SIZE (prefer summary, not department totals)
+    // 🔥 TEAM SIZE (STRICT + SAFE)
     private int extractTeamSize(String text) {
 
-        // Try summary first
-        Pattern pattern = Pattern.compile(
+        // 🔹 PRIORITY: summary section
+        Pattern summaryPattern = Pattern.compile(
                 "team size[^\\d]*(\\d+)",
                 Pattern.CASE_INSENSITIVE
         );
 
-        Matcher matcher = pattern.matcher(text);
+        Matcher summaryMatcher = summaryPattern.matcher(text);
 
-        if (matcher.find()) {
-            return Integer.parseInt(matcher.group(1));
+        if (summaryMatcher.find()) {
+            return Integer.parseInt(summaryMatcher.group(1));
         }
 
-        // fallback → total row
-        Pattern fallback = Pattern.compile(
-                "total[^\\d]*(\\d+)",
+        // 🔹 fallback: headcount keyword
+        Pattern headcountPattern = Pattern.compile(
+                "headcount[^\\d]*(\\d+)",
                 Pattern.CASE_INSENSITIVE
         );
 
-        Matcher fallbackMatcher = fallback.matcher(text);
+        Matcher headcountMatcher = headcountPattern.matcher(text);
 
-        if (fallbackMatcher.find()) {
-            return Integer.parseInt(fallbackMatcher.group(1));
+        if (headcountMatcher.find()) {
+            return Integer.parseInt(headcountMatcher.group(1));
         }
 
+        // ❌ NO random fallback anymore
         return 0;
     }
 
-    // 🔥 CORE: handles M / K / Cr / raw numbers
+    // 🔥 VALUE PARSER
     private long parseValue(String number, String unit) {
 
         double value = Double.parseDouble(number.replace(",", ""));
