@@ -21,5 +21,9 @@ public class User {
 
     private String name;
 
-    private String provider; // google
+    private String password;
+
+    private String provider;// google
+
+    private String providerId;
 }
