@@ -21,10 +21,10 @@ import java.util.Map;
 @Profile("prod")
 public class GeminiService implements AIService {
 
-    @Value("${GEMINI_API_KEY}")
+    @Value("${gemini.api.key}")
     private String apiKey;
 
-    @Value("${GEMINI_API_KEY}")
+    @Value("${gemini.api.url}")
     private String apiUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();

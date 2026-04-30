@@ -16,19 +16,19 @@ spring:
       hibernate:
         format_sql: false
 
+  # Moved servlet under spring where it belongs
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
 server:
   port: ${PORT:8080}
 
 gemini:
   api:
     key: ${GEMINI_API_KEY}
-    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent
-
-
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent
 
 logging:
   level:
