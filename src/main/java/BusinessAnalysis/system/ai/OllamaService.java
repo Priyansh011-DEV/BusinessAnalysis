@@ -10,7 +10,6 @@ import java.util.Map;
 
 @Service
 @Profile("local")
-@Qualifier("ollamaService")
 public class OllamaService implements AIService {
 
     private final RestTemplate restTemplate = new RestTemplate();
