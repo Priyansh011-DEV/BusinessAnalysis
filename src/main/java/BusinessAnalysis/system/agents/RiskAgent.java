@@ -1,24 +1,31 @@
 package BusinessAnalysis.system.agents;
 
 import BusinessAnalysis.system.model.KPIData;
+import BusinessAnalysis.system.nlp.BusinessLexiconService;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RiskAgent {
-    public String evaluateRisk(KPIData data, boolean marketHot, int gap, double performance) {
+    private final BusinessLexiconService lexicon;
+
+    public RiskAgent(BusinessLexiconService lexicon) {
+        this.lexicon = lexicon;
+    }
+
+    public String evaluateRisk(KPIData data, int gap, double performance, String text) {
+
+        String base;
 
         if (performance < 0.6) {
-            return "High execution risk due to major performance gap";
+            base = "High execution risk due to major performance gap";
+        } else if (gap > 0) {
+            base = "Capacity risk due to insufficient team size";
+        } else {
+            base = "Low operational risk";
         }
 
-        if (gap > 0 && marketHot) {
-            return "Risk of under-hiring in high-demand market";
-        }
+        String riskContext = lexicon.getBestSentence(text, "risk");
 
-        if (gap > 0) {
-            return "Capacity risk due to insufficient team size";
-        }
-
-        return "Low operational risk";
+        return base + ". " + riskContext;
     }
 }

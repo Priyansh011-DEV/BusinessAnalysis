@@ -7,13 +7,24 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Profile("!local & !prod")   // only loads if no other profile is active
-@Qualifier("simpleAIService")
 public class SimpleAIService implements AIService {
     @Override
     public String generateExplanation(String plan, String risk, String recommendation) {
 
-        return "Based on your KPI targets, the system suggests: " + plan +
-                ". Current market conditions indicate: " + risk +
-                ". Therefore, recommended action is: " + recommendation + ".";
+        return """
+                Business Analysis Summary:
+
+                Current Situation:
+                %s
+
+                Risk Assessment:
+                %s
+
+                Recommended Action:
+                %s
+
+                Conclusion:
+                Based on the observed performance and operational indicators, the organization should prioritize closing execution gaps and aligning resources with target expectations.
+                """.formatted(plan, risk, recommendation);
     }
 }

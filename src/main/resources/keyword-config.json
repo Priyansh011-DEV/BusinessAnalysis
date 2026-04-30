@@ -1,0 +1,22 @@
+{
+  "risk": {
+    "decline": 3,
+    "drop": 3,
+    "loss": 4,
+    "delay": 2,
+    "shortage": 3
+  },
+  "recommendation": {
+    "hire": 4,
+    "increase": 2,
+    "optimize": 3,
+    "improve": 2,
+    "expand": 2
+  },
+  "insight": {
+    "growth": 3,
+    "performance": 2,
+    "target": 2,
+    "efficiency": 2
+  }
+}

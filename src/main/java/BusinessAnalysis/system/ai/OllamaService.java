@@ -18,30 +18,31 @@ public class OllamaService implements AIService {
     @Override
     public String generateExplanation(String plan, String risk, String recommendation) {
 
-        // 🔥 Extract numbers from plan string (since you embedded them there)
+        //  Extract numbers from plan string (since you embedded them there)
         String prompt = """
-            You are a senior business consultant.
-
-            Business Analysis Data:
-            %s
-
-            Risk:
-            %s
-
-            Recommendation:
-            %s
-
-            Tasks:
-            1. Explain the situation using the numerical data provided
-            2. Highlight why the risk is critical based on performance and capacity gap
-            3. Suggest clear, actionable business steps
-
-            Rules:
-            - MUST use numbers (performance, team gap, productivity)
-            - Be concise (4-6 lines)
-            - Sound like a real consultant (not generic)
-
-            Output:
+                You are a senior business consultant analyzing performance gaps between past results and future targets.
+                
+                    DATA PROVIDED:
+                    - Situation: %s
+                    - Risk: %s
+                    - Recommendation: %s
+                
+                    INSTRUCTIONS:
+                    1. Analyze the performance gap using available numerical indicators
+                    2. Explain WHY the risk exists using performance, capacity, or execution gaps
+                    3. Justify the recommendation logically
+                    4. Use evidence from the data (not generic statements)
+                
+                    STRICT RULES:
+                    - MUST reference numbers if available (performance, gap, productivity)
+                    - If numbers are missing, infer logically from context
+                    - NO generic advice
+                    - Sound like a real consultant
+                    - Keep response 4–6 lines
+                    - Be precise and analytical
+                
+                    OUTPUT:
+                    A concise, data-driven business explanation combining situation, risk reasoning, and action steps.
             """.formatted(plan, risk, recommendation);
 
         String url = "http://localhost:11434/api/generate";

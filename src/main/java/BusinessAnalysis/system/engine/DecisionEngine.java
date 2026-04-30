@@ -20,39 +20,35 @@ public class DecisionEngine {
     private MetricsService metricsService;
 
     @Autowired
-    private MarketAgent marketAgent;
-
-    @Autowired
     private RiskAgent riskAgent;
 
     @Autowired
     private RecommendationAgent recommendationAgent;
 
-    public Result run(KPIData data) {
+    public Result run(KPIData data, String extractedText) {
 
-        // 🔥 Core metrics (your real intelligence layer)
+        // 🔹 Core metrics (KEEP — this is your real engine)
         double productivity = metricsService.productivityPerEmployee(data);
         int requiredTeam = metricsService.requiredTeam(data);
         int gap = metricsService.teamGap(data);
         double performance = metricsService.performanceRatio(data);
 
-        boolean marketHot = marketAgent.isMarketHot();
+        // 🔹 Agent decisions (now lexicon-enhanced)
+        String plan = plannerAgent.plan(data, performance, extractedText);
+        String risk = riskAgent.evaluateRisk(data, gap, performance, extractedText);
+        String recommendation = recommendationAgent.recommend(plan, gap, performance, extractedText);
 
-        // 🔹 Agent decisions (now based on metrics)
-        String plan = plannerAgent.plan(data, performance);
-        String risk = riskAgent.evaluateRisk(data, marketHot, gap, performance);
-        String recommendation = recommendationAgent.recommend(plan, gap, performance);
-
-        // 🔥 Quantitative explanation (THIS is the upgrade)
-        String quantifiedInsight = plan +
-                " | Performance: " + String.format("%.2f", performance * 100) + "%" +
-                " | Productivity per employee: " + (long) productivity +
-                " | Required team: " + requiredTeam +
-                " | Current team: " + data.getTeamSize() +
-                " | Gap: " + gap;
+        // 🔹 Quantitative insight (this is VERY strong — keep it)
+        String quantifiedInsight =
+                plan +
+                        " | Performance: " + String.format("%.2f", performance * 100) + "%" +
+                        " | Productivity per employee: " + (long) productivity +
+                        " | Required team: " + requiredTeam +
+                        " | Current team: " + data.getTeamSize() +
+                        " | Gap: " + gap;
 
         return Result.builder()
-                .insight(quantifiedInsight)   // 🔥 upgraded
+                .insight(quantifiedInsight)
                 .risk(risk)
                 .recommendation(recommendation)
                 .build();

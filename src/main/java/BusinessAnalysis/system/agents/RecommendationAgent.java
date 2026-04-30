@@ -1,19 +1,30 @@
 package BusinessAnalysis.system.agents;
 
+import BusinessAnalysis.system.nlp.BusinessLexiconService;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RecommendationAgent {
-    public String recommend(String plan, int gap, double performance) {
+    private final BusinessLexiconService lexicon;
+
+    public RecommendationAgent(BusinessLexiconService lexicon) {
+        this.lexicon = lexicon;
+    }
+
+    public String recommend(String plan, int gap, double performance, String text) {
+
+        String base;
 
         if (performance < 0.6) {
-            return "Urgently improve execution and increase team capacity";
+            base = "Urgently improve execution and increase team capacity";
+        } else if (gap > 0) {
+            base = "Hire " + gap + " additional employees to meet target based on current productivity";
+        } else {
+            base = "Maintain current strategy and optimize efficiency";
         }
 
-        if (gap > 0) {
-            return "Hire " + gap + " additional employees to meet target based on current productivity";
-        }
+        String recContext = lexicon.getBestSentence(text, "recommendation");
 
-        return "Maintain current strategy and optimize efficiency";
+        return base + ". " + recContext;
     }
 }

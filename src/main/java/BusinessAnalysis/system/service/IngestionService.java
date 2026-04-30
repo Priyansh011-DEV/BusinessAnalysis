@@ -32,7 +32,8 @@ public class IngestionService {
         String text = pdfParser.extractText(file);
         KPIData kpi = extractor.extract(text);
 
-        Result result = decisionEngine.run(kpi);
+        // ✅ UPDATED: pass text
+        Result result = decisionEngine.run(kpi, text);
 
         String explanation = aiService.generateExplanation(
                 result.getInsight(),
@@ -48,32 +49,35 @@ public class IngestionService {
         );
     }
 
-    // 🔥 NEW: Comparison (Past vs Target)
+    // 🔥 Comparison (Past vs Target)
     public AnalysisResponse processComparison(MultipartFile pastFile, MultipartFile targetFile) {
 
         // 🔹 Extract text
         String pastText = pdfParser.extractText(pastFile);
         String targetText = pdfParser.extractText(targetFile);
 
+        // 🔥 Combine BOTH texts for lexicon analysis
+        String combinedText = pastText + ". " + targetText;
+
         // 🔹 Extract KPIs separately
         KPIData pastData = extractor.extract(pastText);
         KPIData targetData = extractor.extract(targetText);
 
-        // 🔥 Merge into ONE dataset
+        // 🔥 Merge into ONE dataset (core comparison logic stays same)
         KPIData finalData = KPIData.builder()
                 .achievedRevenue(pastData.getAchievedRevenue())
                 .teamSize(pastData.getTeamSize())
                 .revenueTarget(targetData.getRevenueTarget())
                 .build();
 
-        // Debug (optional but useful)
+        // Debug (optional)
         System.out.println("=== COMPARISON DATA ===");
         System.out.println("Achieved: " + finalData.getAchievedRevenue());
         System.out.println("Target: " + finalData.getRevenueTarget());
         System.out.println("Team: " + finalData.getTeamSize());
 
-        // 🔹 Run decision engine
-        Result result = decisionEngine.run(finalData);
+        // ✅ UPDATED: pass combined text
+        Result result = decisionEngine.run(finalData, combinedText);
 
         // 🔹 AI explanation
         String explanation = aiService.generateExplanation(
