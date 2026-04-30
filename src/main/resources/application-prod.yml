@@ -33,3 +33,6 @@ gemini:
 logging:
   level:
     root: DEBUG
+
+app:
+  frontend-url: ${FRONTEND_URL}
