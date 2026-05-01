@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("apiv2")
+@RequestMapping("/apiv2")
 public class UploadController {
     @Autowired
     private IngestionService ingestionService;

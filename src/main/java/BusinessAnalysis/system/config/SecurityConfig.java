@@ -30,7 +30,7 @@ public class SecurityConfig {
 
                 // ✅ Authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll() // login/register open
+                        .requestMatchers("/auth/**").permitAll().requestMatchers("/apiv2/**").authenticated() // login/register open
                         .anyRequest().authenticated()
                 )
 
