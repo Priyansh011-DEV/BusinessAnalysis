@@ -1,14 +1,14 @@
 package BusinessAnalysis.system.config;
 
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.beans.factory.annotation.Value;
-@Configuration
 
+@Configuration
 public class CorsConfig {
+
     @Value("${app.frontend-url}")
     private String frontendUrl;
 
@@ -17,14 +17,15 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-
                 registry.addMapping("/**")
                         .allowedOrigins(
-                                frontendUrl,                 // ✅ production (Vercel)
-                                "http://localhost:5173","http://localhost:8080"     // ✅ local dev
+                                frontendUrl,
+                                "http://localhost:5173",
+                                "http://localhost:8080"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
+                        .exposedHeaders("Authorization")
                         .allowCredentials(true);
             }
         };

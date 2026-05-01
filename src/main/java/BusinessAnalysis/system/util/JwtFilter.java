@@ -8,8 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -23,54 +23,45 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JWtUtil jwtUtil;
     private final UserRepository userRepository;
 
+    // ✅ Skip filter entirely for auth routes
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/auth/");
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String path = request.getRequestURI();
+        String authHeader = request.getHeader("Authorization");
 
-        if (path.startsWith("/auth/")) {
+        // No token → pass through, Spring Security handles it
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String authHeader = request.getHeader("Authorization");
-
-// ✅ ADD THESE DEBUG LOGS
-        System.out.println("📍 Path: " + path);
-        System.out.println("🔑 Auth Header: " + authHeader);
-        System.out.println("📋 All Headers: " + java.util.Collections.list(request.getHeaderNames()));
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("❌ No Bearer token — rejecting");
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            return;  // ✅ REJECT instead of passing through
-        }
-
         String token = authHeader.substring(7);
 
-        // ❌ Invalid token → reject
+        // Invalid token → 401
         if (!jwtUtil.isTokenValid(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
+        // Valid token → set authentication
         String email = jwtUtil.extractEmail(token);
-
         User user = userRepository.findByEmail(email).orElse(null);
 
         if (user != null) {
-
-            // ✅ FIX: Add at least one authority
-            var authorities = List.of(
-                    new SimpleGrantedAuthority("USER")
-            );
-
             UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(user, null, authorities);
-
+                    new UsernamePasswordAuthenticationToken(
+                            user, null,
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    );
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
 

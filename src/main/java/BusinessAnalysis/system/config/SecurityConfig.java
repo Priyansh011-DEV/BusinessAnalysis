@@ -4,13 +4,13 @@ import BusinessAnalysis.system.util.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
@@ -22,48 +22,26 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http.cors(cors -> {})
-                // ✅ CSRF enabled (for frontend)
-                .csrf(csrf -> csrf.disable()
-                )
-
-                // ✅ Authorization rules
+        http
+                .cors(cors -> {})
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll().requestMatchers("/apiv2/**").authenticated() // login/register open
-                        .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ CORS preflight
+                        .requestMatchers("/auth/**").permitAll()                // ✅ login/register
+                        .anyRequest().authenticated()                           // ✅ everything else needs token
                 )
-
-                // ✅ Add JWT filter before auth filter
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // ✅ Password encoder
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
-    }
-    @Bean
-    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
-        org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
-
-        config.setAllowedOrigins(java.util.List.of("https://business-analysis-green.vercel.app"));
-        config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(java.util.List.of("*"));
-        config.setAllowCredentials(true);
-
-        org.springframework.web.cors.UrlBasedCorsConfigurationSource source =
-                new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
-
-        source.registerCorsConfiguration("/**", config);
-        return source;
     }
 }
