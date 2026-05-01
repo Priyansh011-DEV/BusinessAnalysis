@@ -51,4 +51,19 @@ public class SecurityConfig {
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
+    @Bean
+    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
+
+        config.setAllowedOrigins(java.util.List.of("https://business-analysis-green.vercel.app"));
+        config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(java.util.List.of("*"));
+        config.setAllowCredentials(true);
+
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source =
+                new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
 }
