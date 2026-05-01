@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@Profile("prod")
+@Profile("local")
 public class GeminiService1 implements AIService {
 
     @Value("${gemini.api.key}")
@@ -54,6 +54,8 @@ public class GeminiService1 implements AIService {
                 - NO generic phrases like "improve performance"
                 - Keep response between 3–5 lines
                 - Be sharp, analytical, and direct
+                - // Add this to your prompt string
+                      "STRICT RULE: Output ONLY the final 3-5 line business explanation. Do not include drafts, reasoning, or labels like 'Draft 1' or 'Final Output'."
                 
                 OUTPUT FORMAT:
                 A concise business explanation combining situation, risk reasoning, and action steps.
