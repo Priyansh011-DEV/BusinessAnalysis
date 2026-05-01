@@ -31,7 +31,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // ✅ Skip only auth endpoints (NOT apiv2)
         if (path.startsWith("/auth/")) {
             filterChain.doFilter(request, response);
             return;
@@ -39,10 +38,15 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        // ✅ If no token → continue (let Spring handle it)
+// ✅ ADD THESE DEBUG LOGS
+        System.out.println("📍 Path: " + path);
+        System.out.println("🔑 Auth Header: " + authHeader);
+        System.out.println("📋 All Headers: " + java.util.Collections.list(request.getHeaderNames()));
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
+            System.out.println("❌ No Bearer token — rejecting");
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;  // ✅ REJECT instead of passing through
         }
 
         String token = authHeader.substring(7);
