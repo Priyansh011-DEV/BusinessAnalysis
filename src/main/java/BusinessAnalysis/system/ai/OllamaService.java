@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-@Profile("prod")
+@Profile("local")
 public class OllamaService implements AIService {
 
     private final RestTemplate restTemplate = new RestTemplate();

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@Profile("local")
+@Profile("prod")
 public class GeminiService1 implements AIService {
 
     @Value("${gemini.api.key}")
